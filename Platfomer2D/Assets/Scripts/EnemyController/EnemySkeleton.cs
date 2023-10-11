@@ -55,7 +55,7 @@ public class EnemySkeleton : Enemy
         {
             if (hit.transform.CompareTag("Player")){
                 playerDetected = true;
-                float distance = Vector2.Distance(transform.position, hit.transform.position);
+                float distance = Vector2.Distance(transform.position, hit.transform.position);// distancia do inimigo ate o objeto com tag "Player"
 
                 if(distance < stopMove) //Distancia para atacar
                 {

@@ -24,8 +24,11 @@ public class PlayerController : MonoBehaviour
     private bool isAttacking; 
     [SerializeField] private float radius;
 
-    //Variável de Vida
+    //Variável de Vida 
+    private bool recoveryTime;
+    private float recoveryCount;
     [SerializeField] private int playerHealth; 
+
 
     void Start()
     {
@@ -153,14 +156,28 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireSphere(attackPoint.position, radius);
     }
 
+
+    //Função responsável por retirar a vida do jogador uma vez que ele receba dano
     protected internal void OnHit()
     {
-        anim.SetTrigger("Hit");
+        recoveryCount += Time.deltaTime; //Faz o valor inicial do contador receber Time.DeltaTime para que tenha uma contagem de segundos
 
-        playerHealth--;
-
-        if(playerHealth <= 0)
+        //usa o contador para impedir que o jogador tome dano constamente, dando uma pausa de 2 segundos entre os danos
+        if (recoveryCount >= 2f) 
         {
+            anim.SetTrigger("Hit");
+
+            playerHealth--;
+
+            recoveryCount = 0f; 
+
+        }
+
+        //Caso a vida do player seja zero, usa a animação de morte 
+        //Utiliza recoveryTime para impedir que a condição seja lida novamente e não executar a animação de morte várias vezes
+        if (playerHealth <= 0 && !recoveryTime) 
+        {
+            recoveryTime = true; 
             anim.SetTrigger("Dead");
             Debug.Log("GameOver");
         }
