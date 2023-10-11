@@ -124,15 +124,16 @@ public class PlayerController : MonoBehaviour
     //Função que aplica lógica de ataque
     void Attack() 
     {
-        const int PlayerDamage = 4; 
+        const int PlayerDamage = 4; //Dano constante do jogador
 
         if (Input.GetButtonDown("Fire1"))
         {
             isAttacking = true;
             anim.SetInteger("Transition", 3);
-            Collider2D hit = Physics2D.OverlapCircle(attackPoint.position, radius, EnemyLayer); //gera um circulo apartir de um transform attackpoint e usa o radius para criar uma esfera que vai identificar a colisão
+            //gera um circulo apartir de um transform attackpoint e usa o radius para criar uma esfera que vai identificar a colisão
+            Collider2D hit = Physics2D.OverlapCircle(attackPoint.position, radius, EnemyLayer); 
 
-            if (hit != null)
+            if (hit != null) //Aplica o dano no inimigo caso o mesmo se depare com o circulo de ataque gerado
             {
                 hit.GetComponent<Enemy>().ApplyDamage(PlayerDamage);
             }
@@ -183,6 +184,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Ativa o trigger quando o jogador entra em contato com um objeto com a layer 7 (Layer Enemy)
      void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.layer == 7)

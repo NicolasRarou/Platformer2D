@@ -21,6 +21,9 @@ public class EnemySkeleton : Enemy
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        //Código abaixo faz com que o inimigo receba um valor de direção inicial logo quando o jogo começa
+        //Sem a direção inicial, o vetor dele sempre seria zero em ambos os eixos, impedindo o movimento provido pelo Vector2
         if (isRight) //Vira para a direita 
         {
             transform.eulerAngles = new Vector2(0, 0);
@@ -68,7 +71,9 @@ public class EnemySkeleton : Enemy
 
     }
 
-    void EnemyMoveInDirection() //Função para mudar a direção que o inimigo está olhando
+    //Função para mudar a direção que o inimigo está olhando 
+    //Adiciona uma velocidade fazendo ele se mover em direção para qual está virado
+    void EnemyMoveInDirection() 
     {     
             if (isRight) //Vira para a direita 
             {
@@ -87,6 +92,7 @@ public class EnemySkeleton : Enemy
 
     }
 
+    //Cria um desenho do Gizmo que ajuda a ter uma visualização da área de ataque
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
