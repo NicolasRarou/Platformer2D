@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawWireSphere(attackPoint.position, radius);
     }
 
-    void OnHit()
+    protected internal void OnHit()
     {
         anim.SetTrigger("Hit");
 
