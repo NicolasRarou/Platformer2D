@@ -3,12 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DemonA : Enemy
+public class EnemyGhoul : Enemy
 {
+
+    //Script feito para inimigos que correm ate o player dando dano por contato e não por ataque. 
+
+    //Variável de componentes
     private Rigidbody2D rb;
     private Animator anim;
-    [SerializeField] private float speed;
     [SerializeField] private Transform point;
+
+    //Variável de Ataque
     [SerializeField] private float radius;
     [SerializeField] private LayerMask layer;
 
@@ -19,18 +24,18 @@ public class DemonA : Enemy
         anim = GetComponent<Animator>();
     }
 
-    void Update()
-    {
-        
-    }
-
-
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(speed, rb.velocity.y);
+        Move();
         OnCollision();
     }
-    
+
+    void Move()
+    {
+        rb.velocity = new Vector2(speed, rb.velocity.y);
+
+    }
+
     void OnCollision() // Função responsável por identificar quando o inimigo bate em uma parede
     {
         Collider2D hit = Physics2D.OverlapCircle(point.position, radius, layer);
@@ -54,14 +59,17 @@ public class DemonA : Enemy
         }
     }
 
+    //Sobrescreve a função de Applydamage de Enemy adicionando um trigger para a animação de morte
+    //e reduzido a speed a zero caso esteja morto
     public override void ApplyDamage(int dmg)
     {
         anim.SetTrigger("death");
 
         speed = 0; 
     }
+    //Cria um desenho do Gizmo que ajuda a ter uma visualização da área de ataque
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(point.position, radius);
     }

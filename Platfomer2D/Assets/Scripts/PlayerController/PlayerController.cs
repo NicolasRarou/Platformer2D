@@ -139,6 +139,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    //Corotina responsável por parar o ataque após executar o primeiro, assim dando um intervalo entre os ataques
     IEnumerator OnAttack()
     {
         yield return new WaitForSeconds(0.35f);
@@ -147,7 +148,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //Cria um desenho do Gizmo que ajuda a ter uma visualização da área de ataque
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(attackPoint.position, radius);
     }

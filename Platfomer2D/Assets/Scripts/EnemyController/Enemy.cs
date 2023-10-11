@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    //Variável de movimento
+    [SerializeField] protected float speed;
 
+    //Variável de Vida
     [SerializeField] protected int health;
-    
+
+
 
     public virtual void ApplyDamage(int dmg)
     {
