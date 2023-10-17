@@ -23,11 +23,13 @@ public class PlayerController : MonoBehaviour
     //Variável de Ataque
     private bool isAttacking; 
     [SerializeField] private float radius;
+    [SerializeField] private int playerDamage;
 
     //Variável de Vida 
     private bool recoveryTime;
     private float recoveryCount;
-    [SerializeField] private int playerHealth; 
+    [SerializeField] private int playerHealth;
+    [SerializeField] private float DamageTime;
 
 
     void Start()
@@ -124,8 +126,6 @@ public class PlayerController : MonoBehaviour
     //Função que aplica lógica de ataque
     void Attack() 
     {
-        const int PlayerDamage = 4; //Dano constante do jogador
-
         if (Input.GetButtonDown("Fire1"))
         {
             isAttacking = true;
@@ -135,7 +135,7 @@ public class PlayerController : MonoBehaviour
 
             if (hit != null) //Aplica o dano no inimigo caso o mesmo se depare com o circulo de ataque gerado
             {
-                hit.GetComponent<Enemy>().ApplyDamage(PlayerDamage);
+                hit.GetComponent<Enemy>().ApplyDamage(playerDamage);
             }
 
             StartCoroutine(OnAttack());
@@ -163,8 +163,8 @@ public class PlayerController : MonoBehaviour
     {
         recoveryCount += Time.deltaTime; //Faz o valor inicial do contador receber Time.DeltaTime para que tenha uma contagem de segundos
 
-        //usa o contador para impedir que o jogador tome dano constamente, dando uma pausa de 2 segundos entre os danos
-        if (recoveryCount >= 2f) 
+        //usa o contador para impedir que o jogador tome dano constamente, dando uma pausa entre os danos
+        if (recoveryCount >= DamageTime) 
         {
             anim.SetTrigger("Hit");
 
@@ -190,6 +190,13 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.layer == 7)
         {
             OnHit();
+        }
+
+        if (collision.CompareTag("Coin")) //Comparação para saber se pegou as moedas
+        {
+            collision.GetComponent<Animator>().SetTrigger("Hit"); //Ativa a animação quando pega a moeda
+            GameController.instance.GetCoin(); //Função que permite a captura de moedas 
+            Destroy(collision.gameObject, 0.35f); //Tempo para destruir a moeda após ela ter sido pega
         }
     }
 

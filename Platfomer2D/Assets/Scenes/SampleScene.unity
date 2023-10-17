@@ -3998,6 +3998,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1031877256
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1031877257}
+  m_Layer: 7
+  m_Name: BehindRayPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1031877257
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031877256}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.936, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1223290867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1078237429
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4142,7 +4173,7 @@ GameObject:
   - component: {fileID: 1223290864}
   - component: {fileID: 1223290863}
   - component: {fileID: 1223290868}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SkeletonEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4229,18 +4260,18 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.05, y: 0}
+  m_Offset: {x: -0.0005400479, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.0625, y: 1}
+    oldSize: {x: 2, y: 2}
     newSize: {x: 1.0625, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.11, y: 0.76}
+  m_Size: {x: 1.1289198, y: 0.76}
   m_EdgeRadius: 0
 --- !u!212 &1223290866
 SpriteRenderer:
@@ -4302,14 +4333,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1223290862}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 1.05, y: -3.64, z: 0}
   m_LocalScale: {x: 1.4, y: 1.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1480589788}
+  - {fileID: 1031877257}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &1223290868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4322,11 +4354,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8ceeaab00fa3474b94746998866765b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2
+  speed: 4
   stopMove: 1.2
-  health: 1
+  health: 5
+  timeOfDeath: 0.5
   rayPoint: {fileID: 1480589788}
-  maxVision: 3
+  behindRayPoint: {fileID: 1031877257}
+  maxVision: 3.89
   isRight: 0
 --- !u!1 &1305481080
 GameObject:
@@ -4369,10 +4403,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1480589788}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: RayPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -4695,7 +4729,9 @@ MonoBehaviour:
   speed: 10
   jumpForce: 8
   radius: 0.4
-  playerHealth: 2
+  playerDamage: 4
+  playerHealth: 5
+  DamageTime: 0.6
 --- !u!50 &1980250371
 Rigidbody2D:
   serializedVersion: 4
