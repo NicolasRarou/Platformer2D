@@ -7,35 +7,38 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
-    //Component Variables 
+    [Header("Components")]
     private Rigidbody2D rb;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask EnemyLayer;
 
-
-    //Moviment Variables 
+    [Header("Moviment Variables")]
     [SerializeField] private float speed;
 
 
-    //Jump Variables 
+    [Header("Jump Variables")]
     private bool isGrounded;
     private bool isJumping;
     private float jumpTimeCounter;
-
+    private Vector2 vecGravity;
+    [SerializeField] private float fallMultipler; 
     [SerializeField] private float jumpForce;
+    [SerializeField] private float jumpMultiplayer;
     [SerializeField] private Transform feetPos;
     [SerializeField] private float checkRadius;
     [SerializeField] private float jumpTime;
     [SerializeField] LayerMask ground;
 
 
-    //Attack Variables  
+
+    [Header("Attack Variables")]
     private bool isAttacking; 
     [SerializeField] private float radius;
     [SerializeField] private int playerDamage;
 
-    //Life Variables 
+
+    [Header("Life Variables")]
     private bool recoveryTime;
     private float recoveryCount;
     [SerializeField] private int playerHealth;
@@ -45,6 +48,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        
     }
 
 
@@ -54,6 +58,7 @@ public class PlayerController : MonoBehaviour
         Attack();
 
          JumpLogic();
+
     }
 
     void FixedUpdate()
@@ -105,32 +110,53 @@ public class PlayerController : MonoBehaviour
     {
        isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, ground);
 
+        vecGravity = new Vector2(0, -Physics2D.gravity.y);
+
         if(isGrounded == true && Input.GetButtonDown("Jump"))
         {
             anim.SetInteger("Transition", 2);
-            rb.velocity = Vector2.up * jumpForce; 
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce); 
             isJumping = true;
-            jumpTimeCounter = jumpTime; 
+            jumpTimeCounter = 0;
         }
 
-        if (Input.GetButton("Jump") && isJumping == true)
+        if (rb.velocity.y < 0) 
         {
+            
+            rb.velocity -= fallMultipler * Time.deltaTime * vecGravity;
+        }
 
-            if(jumpTimeCounter > 0)
+        if (Input.GetButton("Jump") && isJumping)
+        {
+            rb.velocity += jumpMultiplayer * Time.deltaTime * vecGravity;
+            jumpTimeCounter += Time.deltaTime;
+
+            if (jumpTimeCounter > jumpTime)
             {
-                anim.SetInteger("Transition", 2);
-                rb.velocity = Vector2.up * jumpForce;
-                jumpTimeCounter -= Time.deltaTime;
-            }
-            else if(jumpTimeCounter <= 0)
-            {
+
                 isJumping = false;
             }
+
+            float t = jumpTimeCounter / jumpTime;
+            float currentJumpM = jumpMultiplayer;
+
+            if(t > 0.5)
+            {
+                currentJumpM = jumpMultiplayer * (1 - t);
+            }
+
+            rb.velocity += vecGravity * currentJumpM * Time.deltaTime;
         }
 
         if (Input.GetButtonUp("Jump"))
         {
-            isJumping = false; 
+            isJumping = false;
+            jumpTimeCounter = 0; 
+
+            if(rb.velocity.y > 0)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.6f);
+            }
         }
     }
 
