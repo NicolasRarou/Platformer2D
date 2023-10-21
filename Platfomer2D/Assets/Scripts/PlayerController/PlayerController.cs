@@ -7,25 +7,35 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
-    //Variável de componentes 
+    //Component Variables 
     private Rigidbody2D rb;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask EnemyLayer;
 
 
-    //Variável de movimento
-    private bool isJumping;
-    private bool doubleJump;
+    //Moviment Variables 
     [SerializeField] private float speed;
-    [SerializeField] private float jumpForce;
 
-    //Variável de Ataque
+
+    //Jump Variables 
+    private bool isGrounded;
+    private bool isJumping;
+    private float jumpTimeCounter;
+
+    [SerializeField] private float jumpForce;
+    [SerializeField] private Transform feetPos;
+    [SerializeField] private float checkRadius;
+    [SerializeField] private float jumpTime;
+    [SerializeField] LayerMask ground;
+
+
+    //Attack Variables  
     private bool isAttacking; 
     [SerializeField] private float radius;
     [SerializeField] private int playerDamage;
 
-    //Variável de Vida 
+    //Life Variables 
     private bool recoveryTime;
     private float recoveryCount;
     [SerializeField] private int playerHealth;
@@ -42,18 +52,18 @@ public class PlayerController : MonoBehaviour
     {
         
         Attack();
-        Jump();
+
+         JumpLogic();
     }
 
     void FixedUpdate()
     {
         Move();
-        
+
     }
 
 
-
-
+    #region move
     //Fisicas e Inputs de movimento 
     void Move() 
     {
@@ -88,41 +98,45 @@ public class PlayerController : MonoBehaviour
             anim.SetInteger("Transition", 0);
         }
     }
+    #endregion
 
-
-
-    //Lógica e Input de pulo
-    void Jump()
+    #region jumpLogic
+    void JumpLogic()
     {
-        if (Input.GetButtonDown("Jump")){
-            if (!isJumping)
+       isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, ground);
+
+        if(isGrounded == true && Input.GetButtonDown("Jump"))
+        {
+            anim.SetInteger("Transition", 2);
+            rb.velocity = Vector2.up * jumpForce; 
+            isJumping = true;
+            jumpTimeCounter = jumpTime; 
+        }
+
+        if (Input.GetButton("Jump") && isJumping == true)
+        {
+
+            if(jumpTimeCounter > 0)
             {
                 anim.SetInteger("Transition", 2);
-                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-                isJumping = true;
-                doubleJump = true;
-            } 
-            else if (doubleJump)
-            {
-               anim.SetInteger("Transition", 2);
-                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-                doubleJump = false;
+                rb.velocity = Vector2.up * jumpForce;
+                jumpTimeCounter -= Time.deltaTime;
             }
-           
+            else if(jumpTimeCounter <= 0)
+            {
+                isJumping = false;
+            }
         }
-    }
 
-
-    //Detecta colisão com o chão, impedindo que ocorreram multiplos pulos
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.layer == 6)
+        if (Input.GetButtonUp("Jump"))
         {
             isJumping = false; 
         }
     }
 
+    #endregion
 
+    #region attack
     //Função que aplica lógica de ataque
     void Attack() 
     {
@@ -156,8 +170,9 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.DrawWireSphere(attackPoint.position, radius);
     }
+    #endregion
 
-
+    #region takeDamage
     //Função responsável por retirar a vida do jogador uma vez que ele receba dano
     protected internal void OnHit()
     {
@@ -183,9 +198,11 @@ public class PlayerController : MonoBehaviour
             Debug.Log("GameOver");
         }
     }
+    #endregion
 
+    #region coinCollector
     //Ativa o trigger quando o jogador entra em contato com um objeto com a layer 7 (Layer Enemy)
-     void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.layer == 7)
         {
@@ -199,5 +216,5 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject, 0.35f); //Tempo para destruir a moeda após ela ter sido pega
         }
     }
-
+    #endregion
 }

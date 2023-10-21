@@ -57,15 +57,21 @@ public class EnemyGhoul : Enemy
             }
 
         }
+        
     }
 
     //Sobrescreve a função de Applydamage de Enemy adicionando um trigger para a animação de morte
     //e reduzido a speed a zero caso esteja morto
     public override void ApplyDamage(int dmg)
     {
-        anim.SetTrigger("death");
+        health -= dmg;
 
-        speed = 0; 
+        if (health <= 0)
+        {
+            anim.SetTrigger("death");
+            speed = 0;
+            Destroy(gameObject, timeOfDeath);
+        }
     }
     //Cria um desenho do Gizmo que ajuda a ter uma visualização da área de ataque
 
