@@ -3,21 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
-    [Header("Components")]
+    [Header("Components", order = 0)]
     private Rigidbody2D rb;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask EnemyLayer;
 
-    [Header("Moviment Variables")]
+    [Header("Moviment Variables", order = 1)]
     [SerializeField] private float speed;
+    [SerializeField] private float velPower;
+    [SerializeField] private float acceleration;
+    [SerializeField] private float decceleration;
+    [SerializeField] private float artificalfriction;
 
 
-    [Header("Jump Variables")]
+
+    [Header("Jump Variables", order = 2)]
     private bool isGrounded;
     private bool isJumping;
     private float jumpTimeCounter;
@@ -32,13 +38,13 @@ public class PlayerController : MonoBehaviour
 
 
 
-    [Header("Attack Variables")]
+    [Header("Attack Variables", order = 3)]
     private bool isAttacking; 
     [SerializeField] private float radius;
     [SerializeField] private int playerDamage;
 
 
-    [Header("Life Variables")]
+    [Header("Life Variables", order = 4)]
     private bool recoveryTime;
     private float recoveryCount;
     [SerializeField] private int playerHealth;
@@ -72,13 +78,29 @@ public class PlayerController : MonoBehaviour
     //Fisicas e Inputs de movimento 
     void Move() 
     {
-        //Retorna 1 para direita, -1 para esquerda e 0 para caso não precione nada. 
+        //Retorna 1 para direita, -1 para esquerda e 0 para caso não precione nada.
+        float moveInput = Input.GetAxis("Horizontal");
 
-        float movement = Input.GetAxis("Horizontal");
+        //Faz o que a velocidade desejada seja obtida quando o input é aplicado e multipla esse input pela velocidade do jogador
+        float targetSpeed = moveInput * speed;
 
-        rb.velocity = new Vector2(movement * speed, rb.velocity.y);
+        //cria uma velocidade de diferença que é a velocidade desejada subtraída da velocidade no eixo x
+        float speedDif = targetSpeed - rb.velocity.x; 
 
-        if(movement > 0) // Faz o personagem virar a esquerda ao andar para a esquerda. 
+        //cria uma taxa de aceleração ou desaceleração quando o jogador muda de direção ou quando para o personagem
+        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : decceleration;
+
+
+        /* aplica aceleração para a diferença de velocidade, então aumenta para o valor da potência da velocidade
+         * para que a aceleração aumente com velocidades maiores e por fim multipla pelo sinal da diferença de velocidade 
+         * para reaplicar a direção */
+        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
+
+
+        // aplica a força para um rigidbody, multiplicando por um vetor e filtrando para que só atinja o eixo x. 
+        rb.AddForce(movement * Vector2.right);
+
+        if (moveInput > 0) // Faz o personagem virar a esquerda ao andar para a esquerda. 
         {
             if (!isJumping && !isAttacking)
             {
@@ -87,7 +109,8 @@ public class PlayerController : MonoBehaviour
 
             transform.eulerAngles = new Vector2(0, 0);
 
-        }else if(movement < 0)
+        }
+        else if (moveInput < 0)
         {
             if (!isJumping && !isAttacking)
             {
@@ -98,11 +121,26 @@ public class PlayerController : MonoBehaviour
 
         }
 
-        if (movement == 0 && !isJumping && !isAttacking)
+        if (moveInput == 0 && !isJumping && !isAttacking)
         {
             anim.SetInteger("Transition", 0);
+
         }
+
+        //checa se estamos não e se estamos tentando parar o personagem
+        if (isGrounded && Mathf.Abs(moveInput) < 0.01f)
+        {
+            //e então checa se usaremos ou a velocidade ou fricção para parar o personagem e evitar que ele "deslize" devido a utilização de add force
+            float amout = Mathf.Min(Mathf.Abs(rb.velocity.x), Mathf.Abs(artificalfriction));
+            //seta para a direção do movimento
+            amout *= Mathf.Sign(rb.velocity.x);
+
+            //aplica força contra a própria direção do movimento
+            rb.AddForce(Vector2.right * -amout, ForceMode2D.Impulse);
+        }
+
     }
+
     #endregion
 
     #region jumpLogic
@@ -111,6 +149,7 @@ public class PlayerController : MonoBehaviour
        isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, ground);
 
         vecGravity = new Vector2(0, -Physics2D.gravity.y);
+
 
         if(isGrounded == true && Input.GetButtonDown("Jump"))
         {
@@ -122,7 +161,7 @@ public class PlayerController : MonoBehaviour
 
         if (rb.velocity.y < 0) 
         {
-            
+
             rb.velocity -= fallMultipler * Time.deltaTime * vecGravity;
         }
 
@@ -151,15 +190,15 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonUp("Jump"))
         {
             isJumping = false;
-            jumpTimeCounter = 0; 
+            jumpTimeCounter = 0;
 
-            if(rb.velocity.y > 0)
+            if (rb.velocity.y > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.6f);
             }
         }
-    }
 
+    }
     #endregion
 
     #region attack
